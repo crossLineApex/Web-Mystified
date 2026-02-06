@@ -1,0 +1,12 @@
+.task-completed{
+    background-color: green;
+}
+
+.task-notcompleted{
+    background-color: red;
+}
+
+li{
+    margin: 5px;
+    padding: 10px;
+}

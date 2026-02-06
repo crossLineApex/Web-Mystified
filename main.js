@@ -16,6 +16,7 @@
                 li.textContent = task.text;
                 li.style.textDecoration = task.done ? 'line-through' : 'none';
                 li.style.cursor = 'pointer';
+                li.className = task.done ? 'task-completed' : 'task-notcompleted';
                 
                 li.addEventListener('click',() => {
                     tasks[index].done = !tasks[index].done;
@@ -61,6 +62,7 @@
                 li.textContent = task.text;
                 li.style.textDecoration = task.done ? 'line-through' : 'none';
                 li.style.cursor = 'pointer';
+                li.className = task.done ? 'task-completed' : 'task-notcompleted';
                 
                 li.addEventListener('click',() => {
                     const originalIndex = tasks.indexOf(task);
