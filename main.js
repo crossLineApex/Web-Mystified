@@ -1,5 +1,4 @@
-
-     let tasks = []; // task variable -> state
+          let tasks = []; // task variable -> state
 
         const input = document.getElementById('taskInput');
         const addBtn = document.getElementById('addBtn');
