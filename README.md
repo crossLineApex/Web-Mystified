@@ -1,121 +1,101 @@
-# Task List Project - Level 1
+# Task List Project - Level 1.1
 
-This is a server-rendered static HTML + client scripting project.
+This is a server-rendered static HTML + client scripting project with MPA (Multi Page Application)
 
 ## Why Not Client-Side Rendering (CSR)?
 
 Initial HTML rendering does not depend on JavaScript execution. JS is augmenting, not rendering. There is no initial blank page here.
 
-## What is "Server" Here?
+# Multi-Page Application (MPA) Architecture
 
-Your OS file system acts as a server, following a resource request model. You can confirm this by checking network calls.
+## Overview
 
-## Script Placement and Loading Strategies
+This document explains how traditional Multi-Page Applications work, where each route triggers a full page reload and document lifecycle.
 
-### Script Placement
+## How MPA Navigation Works
 
-Script placement is important. It is always recommended to add scripts just before the body tag ends, as they are render-blocking scripts. This is especially dangerous since we are dealing with a single thread.
+### 1. Every Route = Full Document Lifecycle
 
-### Defer Attribute
-
-Instead of inline blocking scripts, `defer` is used.
-
-**What defer does:**
-
-- Ensures that HTML is parsed first
-- Preserves execution order
-- Downloads scripts in parallel to HTML rendering
-
-**Important:** Deferred scripts execute after DOM construction but before `DOMContentLoaded`, because `DOMContentLoaded` signals that both DOM and application scripts are ready.
-
-### Async Attribute
-
-**Characteristics:**
-
-- No guaranteed order
-- Executes immediately when ready
-- May interrupt parsing
-- Used for analytics
-- Order is nondeterministic
-
-### Important Notes
-
-**Remember:** Inline scripts IGNORE defer.
-
-Also, `type="module"` seen in modern code means that defer behavior is used by default.
-
-## Why Was This Not Enough? Why Did We Need Frameworks and Libraries?
-
-### 1. State ↔ UI Synchronization Hell (Core Problem)
-
-UI logic scattered everywhere. Bugs grow quadratically. This is also called **implicit state coupling**.
-
-**Framework Solution:**
-
-UI should be a function of state, not manual syncing.
-
-### 2. DOM Mutation Complexity Explodes
-
-You become a human garbage collector.
-
-**Framework Solution:**
-
-- Recompute UI from state
-- You don't delete nodes
-- Framework does
-
-### 3. Layout Thrashing
-
-**Problem:**
-```javascript
-el.style.height = "200px";
-console.log(el.offsetHeight);
-el.style.width = "300px";
+When you click:
+```html
+<a href="./about/about.html">
 ```
 
-This causes: reflow → paint → reflow → paint (repeated), leading to CPU spikes and scroll jank.
-
-**Framework Solution:**
-
-Frameworks batch updates:
-
-1. Collect changes
-2. Apply together
-
-React Fiber literally exists for this purpose.
-
-### 4. DOM Recreation vs DOM Diffing
-
-**Problem:**
-
-Every time we do:
-```javascript
-taskList.innerHTML = '';
+The browser executes the following sequence:
+```
+destroy current DOM
+destroy JS context
+destroy memory
+request new HTML
+parse HTML
+download CSS
+download JS
+execute JS
+build DOM
+paint
 ```
 
-This destroys:
+**Key Point:** Each navigation is a cold start.
 
-- Nodes
-- Listeners (easy to miss destroying listeners properly)
-- Scroll position
-- Focus state
+### 2. Every Route Reloads HTML + CSS + JS
 
-**Framework Solution:**
+There is NO reuse by default.
 
-Frameworks introduced Virtual DOM and diffing algorithms to compute minimal changes instead of recreating everything.
+Each page has:
 
-### 5. Mental Model Collapse
+- Its own HTML
+- Its own styles
+- Its own scripts
 
-**Biggest Issue:**
+The browser treats each page as a completely new application.
 
-You lose the global picture. Logic is scattered across:
+### 3. No JS State Survives Navigation
 
-- Click handlers
-- Timeouts
-- AJAX callbacks
+This is critical to understand.
 
-This makes it impossible to reason about the application.
+**Example:**
 
-**Framework Solution:**
+If you had:
+```javascript
+let count = 5;
+```
 
-Frameworks enforce structure and predictable patterns.
+On the Home page, then navigate to About, then navigate back - `count` is gone.
+
+**Why?**
+
+The JS runtime is destroyed on navigation.
+
+**State Persistence Options:**
+
+Unless you persist manually using:
+
+- localStorage
+- Cookies
+- Server-side storage
+
+State is ephemeral and does not survive navigation.
+
+### 4. Routing is Handled by Browser + Filesystem/Server
+
+Routing is NOT handled by JavaScript.
+
+**How it works:**
+
+Browser asks:
+```
+give me /about.html
+```
+
+Server (or filesystem) responds with the file.
+
+That's routing in an MPA.
+
+## Mental Model
+
+**Clean MPA Architecture:**
+
+Each route is a new document, new DOM, new JS context, and new memory allocation.
+
+
+This is just a very crude way to explain MPA to get some better understanding on how critical path is performed by browser and the steps
