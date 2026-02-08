@@ -18,7 +18,7 @@ This document explains how traditional Multi-Page Applications work, where each 
 
 When you click:
 ```html
-<a href="./about/about.html">
+<a href="./about/index.html">
 ```
 
 The browser executes the following sequence:
@@ -84,7 +84,7 @@ Routing is NOT handled by JavaScript.
 
 Browser asks:
 ```
-give me /about.html
+give me /index.html
 ```
 
 Server (or filesystem) responds with the file.
